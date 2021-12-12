@@ -1,62 +1,105 @@
-const fetchData= async(searchTerm)=>{
+const autoCompleteConfig={
+    renderOption(movie){       //how to show individual item
+        const imgSrc=movie.Poster==='N/A'? "" : movie.Poster;  //spme movies in api dont have poster instead having N/A
+      return `
+      <img src="${imgSrc}"/>
+       ${movie.Title} (${movie.Year})
+      `
+       },
+       inputValue(movie){      //autofill input of chosen item
+           return movie.Title 
+       },
+      async fetchData(searchTerm){
+        const response = await axios.get('http://www.omdbapi.com/',{
+            params:{
+                apikey:'63f2b49e',
+               s:searchTerm
+            }
+        });
+    if(response.data.Error){
+        return [];
+    }
+    
+       return response.data.Search;
+    }
+}
+createAutoComplete({
+    ...autoCompleteConfig,  //get all data from autocompleteconfig
+    root:document.querySelector('#left-autocomplete'),   //where to render autocomplete to
+    onOptionSelect(movie){     //when click to item in dropdown
+        document.querySelector('.tutorial').classList.add('is-hidden')  
+        onMovieSelect(movie,document.querySelector('#left-summary'),'left')
+       },
+});
+createAutoComplete({
+    ...autoCompleteConfig, 
+    root:document.querySelector('#right-autocomplete'),   //where to render autocomplete to
+    onOptionSelect(movie){     //when click to item in dropdown
+        document.querySelector('.tutorial').classList.add('is-hidden')  
+        onMovieSelect(movie,document.querySelector('#right-summary'),'right')
+
+       },
+});
+
+let leftMovie;  // to give differenet colour to superior
+let rightMovie;
+const onMovieSelect=async (movie,summaryElement,side)=>{
     const response = await axios.get('http://www.omdbapi.com/',{
         params:{
             apikey:'63f2b49e',
-           s:searchTerm
-        }
+           i:movie.imdbID   //additional data of movie
+        } 
     });
-if(response.data.Error){
-    return [];
+summaryElement.innerHTML=movieTemplate(response.data)    
+if(side=='left'){
+    leftMovie=response.data;
+}else{
+    rightMovie=response.data;
 }
-
-   return response.data.Search;
+if(leftMovie && rightMovie){
+    runComaprison();
 }
-const root=document.querySelector('.autocomplete')
-root.innerHTML=`
-<label><b>Search for a Movie</b></label>
-<input class='input'/>
-<div class="dropdown">
-<div class="dropdown-menu">
-    <div class="dropdown-content results"></div>
-</div>
-</div>
-`;
-const input=document.querySelector('input')
-const dropdown=document.querySelector('.dropdown')
-const resultsWrapper=document.querySelector('.results')
-
-const onInput=async event=>{
- const movies=await fetchData(event.target.value);
-if(!movies.length){
-    dropdown.classList.remove('is-active');
-    return;
-}
- resultsWrapper.innerHTML="";   //clearing dropdown search for new input
- dropdown.classList.add('is-active')   //opens dropdown
-
- for(let movie of movies){
-       const option=document.createElement('a')
-      const imgSrc=movie.Poster==='N/A'? "" : movie.Poster;  //spme movies in api dont have poster instead having N/A
-       option.classList.add('dropdown-item')
-     
-       option.innerHTML=`
-       <img src="${imgSrc}"/>
-        ${movie.Title}
-       `;
-  option.addEventListener('click',()=>{
-      dropdown.classList.remove('is-active'); // to remove dropdown after clicking on any movie in dropdown
-      input.value = movie.Title;  // to update text in input
-  })
-
-       resultsWrapper.appendChild(option)
-  };
 };
-input.addEventListener('input',debounce(onInput,500))
-
-
-//closing dropdown after clicking on anywhere except dropdown
-document.addEventListener('click',event=>{
-if(!root.contains(event.target)){
-    dropdown.classList.remove('is-active')
+const runComaprison=()=>{
+    console.log('time');
 }
-})
+
+
+const movieTemplate=(movieDetail)=>{
+    return `
+    <article class='media'>
+       <figure class='media-left'>
+       <p class='image'>
+       <img src="${movieDetail.Poster}"/>
+       </p>
+       </figure>
+       <div class='media-content'>
+       <div class='content'>
+       <h1>${movieDetail.Title}</h1>
+       <h4>${movieDetail.Genre}</h4>
+       <p>${movieDetail.Plot}</p>
+       </div>
+       </div>
+       </article>
+       <article class='notification is-primary'>
+       <p class='title'>${movieDetail.Awards}</p>
+       <p class='subtitle'>Awards</p> 
+       </article>
+       <article class='notification is-primary'>
+       <p class='title'>${movieDetail.BoxOffice}</p>
+       <p class='subtitle'>Box Office</p> 
+       </article>
+       <article class='notification is-primary'>
+       <p class='title'>${movieDetail.Metascore}</p>
+       <p class='subtitle'>Metascore</p> 
+       </article>
+       <article class='notification is-primary'>
+       <p class='title'>${movieDetail.imdbRating}</p>
+       <p class='subtitle'>IMDB  Rating</p> 
+       </article>
+       <article class='notification is-primary'>
+       <p class='title'>${movieDetail.imdbVotes}</p>
+       <p class='subtitle'>IMDB Votes</p> 
+       </article>
+    `;
+}
