@@ -4,6 +4,7 @@ This online movie comparison app will let you compare the movies by types of mov
 
 ## Sample Project
 
+![movie](https://user-images.githubusercontent.com/87421798/152989807-327c3181-55b7-47e0-a286-0fcc317dc662.png)
 
 
 ## Technologies and tools used
