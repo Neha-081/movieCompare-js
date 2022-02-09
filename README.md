@@ -19,7 +19,7 @@ This online movie comparison app will let you compare the movies by types of mov
 
 
 ## Check it out
-This project has been deployed online.
+This project has been deployed online - https://movie-fight-app12.netlify.app/
 
 ## Contact
 Feel free to reach me ->
