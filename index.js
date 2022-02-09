@@ -44,7 +44,7 @@ createAutoComplete({
 let leftMovie;  // to give differenet colour to superior
 let rightMovie;
 const onMovieSelect=async (movie,summaryElement,side)=>{
-    const response = await axios.get('http://www.omdbapi.com/',{
+    const response = await axios.get('https://www.omdbapi.com/',{
         params:{
             apikey:'63f2b49e',
            i:movie.imdbID   //additional data of movie
